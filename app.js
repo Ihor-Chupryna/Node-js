@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const {userRouter} = require('./routes');
-const {configs} = require('./configs')
+const { userRouter } = require('./routes');
+const { configs } = require('./configs')
 
 mongoose.connect('mongodb://localhost:27017/node-test');
 
