@@ -3,7 +3,8 @@ const router = require('express').Router();
 const { userController } = require('../controlers');
 const { commonMiddleware, userMiddleware } = require("../middlewares");
 
-router.get('/', userController.findUsers);
+router.get('/', userMiddleware.isUserQueryValid,
+    userController.findUsers);
 router.post('/', userMiddleware.isUserValidForCreate,
     userMiddleware.isUserUniq,
     userController.createUser);

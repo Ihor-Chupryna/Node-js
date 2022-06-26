@@ -1,12 +1,13 @@
 const { CustomError } = require('../errors');
 const { userService } = require("../services");
+const { userValidator, userQueryValidator } = require("../validators");
 
 module.exports = {
     isUserPresent: async (req, res, next) => {
         try {
             const { id } = req.params;
 
-            const user = await userService.findOneUser({_id: id});
+            const user = await userService.findOneUser({ _id: id });
             if (!user) {
                 return next(new CustomError('User not found'))
             }
@@ -22,9 +23,9 @@ module.exports = {
         try {
             const { email } = req.body;
 
-            const user = await userService.findOneUser({email: email});
+            const user = await userService.findOneUser({ email: email });
             if (user) {
-                return next(new CustomError(`User with email ${email} is exist`, 409));
+                return next(new CustomError(`User with email ${ email } is exist`, 409));
             }
 
             req.user = user;
@@ -36,24 +37,13 @@ module.exports = {
 
     isUserValidForCreate: async (req, res, next) => {
         try {
-            const { name, age, email, password } = req.body;
+            const { error, value } = userValidator.createUserValidator.validate(req.body);
 
-            if (!age || !Number.isInteger(age) || age < 18) {
-                return next(new CustomError('Set valid age'));
+            if (error) {
+                return next(new CustomError(error.details[0].message));
             }
 
-            if (!name || name.length < 3) {
-                return next(new CustomError('Set valid name'));
-            }
-
-            if (!email || !email.includes('@')) {
-                return next(new CustomError('Set valid email'));
-            }
-
-            if (!password || password.length < 8) {
-                return next(new CustomError('Set valid password'));
-            }
-
+            req.body = value;
             next();
         } catch (e) {
             next(e);
@@ -62,20 +52,31 @@ module.exports = {
 
     isUserValidForUpdate: async (req, res, next) => {
         try {
-            const { name, age } = req.body;
+            const { error, value } = userValidator.updateUserValidator.validate(req.body);
 
-            if (age && !Number.isInteger(age) || age < 18) {
-                return next(new CustomError('Set valid age'));
+            if (error) {
+                return next(new CustomError(error.details[0].message));
             }
 
-            if (name && name.length < 3) {
-                return next(new CustomError('Set valid name'))
-            }
-
-            req.dateForUpdate = { name, age };
+            req.body = value;
             next();
         } catch (e) {
             next(e);
         }
-    }
+    },
+
+    isUserQueryValid: async (req, res, next) => {
+        try {
+            const { error, value } = userQueryValidator.findAll.validate(req.query);
+
+            if (error) {
+                return next(new CustomError(error.details[0].message));
+            }
+
+            req.query = value;
+            next();
+        } catch (e) {
+            next(e);
+        }
+    },
 };
