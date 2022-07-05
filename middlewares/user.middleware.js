@@ -25,7 +25,7 @@ module.exports = {
 
             const user = await userService.findOneUser({ email: email });
             if (user) {
-                return next(new CustomError(`User with email ${ email } is exist`, 409));
+                return next(new CustomError(`User with email ${email} is exist`, 409));
             }
 
             req.user = user;
@@ -79,4 +79,5 @@ module.exports = {
             next(e);
         }
     },
+
 };

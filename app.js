@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const { userRouter } = require('./routes');
+const { userRouter, authRouter } = require('./routes');
 const { configs } = require('./configs')
 
 mongoose.connect('mongodb://localhost:27017/node-test');
@@ -9,6 +9,7 @@ mongoose.connect('mongodb://localhost:27017/node-test');
 const app = express();
 app.use(express.json());
 
+app.use('/auth', authRouter);
 app.use('/users', userRouter);
 
 app.use('*', (req, res) => {
@@ -24,6 +25,6 @@ app.use((err, req, res, next) => {
         });
 });
 
-app.listen(configs.PORT, ()=> {
+app.listen(configs.PORT, () => {
     console.log(`Started on port ${configs.PORT}`)
 })
